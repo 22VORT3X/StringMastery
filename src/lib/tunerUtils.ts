@@ -1,8 +1,8 @@
 export interface StringNote {
-  note: string
-  frequency: number
-  instrument: string
-  stringName: string
+  note: string;
+  frequency: number;
+  instrument: string;
+  stringName: string;
 }
 
 export const STRING_TUNINGS: Record<string, StringNote[]> = {
@@ -30,79 +30,43 @@ export const STRING_TUNINGS: Record<string, StringNote[]> = {
     { note: 'D2', frequency: 73.42, instrument: 'bass', stringName: 'D' },
     { note: 'G2', frequency: 98.0, instrument: 'bass', stringName: 'G' },
   ],
-}
+};
 
-export function detectPitch(buffer: Float32Array<ArrayBuffer>, sampleRate: number): number | null {
-  const SIZE = buffer.length
-  let bestOffset = -1
-  let bestCorrelation = 0
-  let rms = 0
+// Autocorrelation-based pitch detection (YIN-inspired)
+export function detectPitch(buffer: Float32Array, sampleRate: number): number | null {
+  const SIZE = buffer.length;
+  let rms = 0;
+  for (let i = 0; i < SIZE; i++) rms += buffer[i] * buffer[i];
+  rms = Math.sqrt(rms / SIZE);
+  if (rms < 0.01) return null;
 
-  for (let i = 0; i < SIZE; i++) {
-    rms += buffer[i] * buffer[i]
-  }
-  rms = Math.sqrt(rms / SIZE)
+  let bestOffset = -1;
+  let bestCorrelation = 0;
+  let lastCorrelation = 1;
 
-  if (rms < 0.01) return null
-
-  let lastCorrelation = 1
-  for (let offset = 0; offset < SIZE / 2; offset++) {
-    let correlation = 0
+  for (let offset = 1; offset < SIZE / 2; offset++) {
+    let correlation = 0;
     for (let i = 0; i < SIZE / 2; i++) {
-      correlation += Math.abs(buffer[i] - buffer[i + offset])
+      correlation += Math.abs(buffer[i] - buffer[i + offset]);
     }
-    correlation = 1 - correlation / (SIZE / 2)
-
+    correlation = 1 - correlation / (SIZE / 2);
     if (correlation > 0.9 && correlation > lastCorrelation) {
-      bestCorrelation = correlation
-      bestOffset = offset
+      bestCorrelation = correlation;
+      bestOffset = offset;
     }
-    lastCorrelation = correlation
+    lastCorrelation = correlation;
   }
 
   if (bestCorrelation > 0.01 && bestOffset > 0) {
-    return sampleRate / bestOffset
+    return sampleRate / bestOffset;
   }
-
-  return null
-}
-
-export function getClosestNote(frequency: number, instrument: string): {
-  note: StringNote
-  cents: number
-  inTune: boolean
-} | null {
-  const strings = STRING_TUNINGS[instrument]
-  if (!strings) return null
-
-  let closest: StringNote | null = null
-  let minDist = Infinity
-
-  const allNotes = getAllChromaticNotes(strings[0].frequency * 0.5, strings[strings.length - 1].frequency * 2)
-
-  for (const n of allNotes) {
-    const dist = Math.abs(n.frequency - frequency)
-    if (dist < minDist) {
-      minDist = dist
-      closest = n
-    }
-  }
-
-  if (!closest) return null
-
-  const cents = 1200 * Math.log2(frequency / closest.frequency)
-  return {
-    note: closest,
-    cents,
-    inTune: Math.abs(cents) < 5,
-  }
+  return null;
 }
 
 function getAllChromaticNotes(minFreq: number, maxFreq: number): StringNote[] {
-  const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
-  const notes: StringNote[] = []
-  let freq = 16.35
-
+  const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+  const notes: StringNote[] = [];
+  let freq = 16.35;
   for (let octave = 0; octave <= 8; octave++) {
     for (let i = 0; i < 12; i++) {
       if (freq >= minFreq && freq <= maxFreq) {
@@ -111,19 +75,44 @@ function getAllChromaticNotes(minFreq: number, maxFreq: number): StringNote[] {
           frequency: freq,
           instrument: '',
           stringName: noteNames[i],
-        })
+        });
       }
-      freq *= Math.pow(2, 1 / 12)
+      freq *= Math.pow(2, 1 / 12);
+    }
+  }
+  return notes;
+}
+
+export function getClosestNote(
+  frequency: number,
+  instrument: string
+): { note: StringNote; cents: number; inTune: boolean } | null {
+  const strings = STRING_TUNINGS[instrument];
+  if (!strings) return null;
+
+  const minFreq = strings[0].frequency * 0.5;
+  const maxFreq = strings[strings.length - 1].frequency * 2;
+  const allNotes = getAllChromaticNotes(minFreq, maxFreq);
+
+  let closest: StringNote | null = null;
+  let minDist = Infinity;
+  for (const n of allNotes) {
+    const dist = Math.abs(n.frequency - frequency);
+    if (dist < minDist) {
+      minDist = dist;
+      closest = n;
     }
   }
 
-  return notes
+  if (!closest) return null;
+  const cents = 1200 * Math.log2(frequency / closest.frequency);
+  return { note: closest, cents, inTune: Math.abs(cents) < 5 };
 }
 
 export function centsToColor(cents: number): string {
-  const abs = Math.abs(cents)
-  if (abs < 5) return '#348256'
-  if (abs < 15) return '#e3bc25'
-  if (abs < 30) return '#d97245'
-  return '#c4522a'
+  const abs = Math.abs(cents);
+  if (abs < 5) return '#348256';
+  if (abs < 15) return '#e3bc25';
+  if (abs < 30) return '#d97245';
+  return '#c4522a';
 }

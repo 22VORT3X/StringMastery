@@ -1,27 +1,26 @@
-# Logs
-logs
-*.log
-npm-debug.log*
-
-# Dependencies
 node_modules/
-
-# Build output
+.expo/
 dist/
-dist-ssr/
-
-# Local env files
+npm-debug.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+web-build/
 .env
 .env.local
-.env.*.local
 
-# Editor
-.vscode/*
-!.vscode/extensions.json
-.idea
+# macOS
 .DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+*.pem
+
+# Local env files
+.env*.local
+
+# typescript
+*.tsbuildinfo
+
+# EAS
+.easignore

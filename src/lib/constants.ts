@@ -3,6 +3,6 @@ export const INSTRUMENTS = [
   { id: 'viola', label: 'Viola', range: 'C3 – A4' },
   { id: 'cello', label: 'Cello', range: 'C2 – A3' },
   { id: 'bass', label: 'Bass', range: 'E1 – G2' },
-] as const
+] as const;
 
-export type InstrumentId = 'violin' | 'viola' | 'cello' | 'bass'
+export type InstrumentId = 'violin' | 'viola' | 'cello' | 'bass';

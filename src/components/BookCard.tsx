@@ -1,68 +1,103 @@
-import { BookOpen, Music, Tag } from 'lucide-react'
-import type { Book } from '../lib/supabase'
+import React from 'react';
+import { View, Text } from 'react-native';
+import { BookOpen, Music, Tag } from 'lucide-react-native';
+import type { Book } from '../lib/supabase';
 
 const TYPE_LABELS: Record<string, string> = {
   scales: 'Scales',
   etudes: 'Etudes',
   both: 'Scales & Etudes',
-}
+};
 
-const INSTRUMENT_COLORS: Record<string, string> = {
-  violin: 'bg-mahogany-100 text-mahogany-700 border-mahogany-200',
-  viola: 'bg-gold-100 text-gold-700 border-gold-200',
-  cello: 'bg-forest-100 text-forest-700 border-forest-200',
-  bass: 'bg-blue-50 text-blue-700 border-blue-200',
-}
+const DIFFICULTY_COLORS: Record<string, { bg: string; text: string }> = {
+  beginner: { bg: '#d8ede1', text: '#266843' },
+  intermediate: { bg: '#faf2c7', text: '#a37e12' },
+  advanced: { bg: '#fae3d8', text: '#a63e1f' },
+  all: { bg: '#f3f4f6', text: '#6b7280' },
+};
+
+const INSTRUMENT_COLORS: Record<string, { bg: string; text: string; border: string }> = {
+  violin: { bg: '#fae3d8', text: '#a63e1f', border: '#f4c4a8' },
+  viola: { bg: '#faf2c7', text: '#a37e12', border: '#f5e48f' },
+  cello: { bg: '#d8ede1', text: '#266843', border: '#afd8be' },
+  bass: { bg: '#eff6ff', text: '#1d4ed8', border: '#bfdbfe' },
+};
 
 export default function BookCard({ book }: { book: Book }) {
+  const diffColor = DIFFICULTY_COLORS[book.difficulty] ?? DIFFICULTY_COLORS.all;
+  const instColor = INSTRUMENT_COLORS[book.instrument] ?? INSTRUMENT_COLORS.violin;
+
   return (
-    <div className="card p-5 hover:shadow-md transition-all duration-200 animate-slide-up group">
-      <div className="flex items-start justify-between gap-3 mb-3">
-        <div className="flex-1 min-w-0">
-          <h3 className="font-serif font-semibold text-gray-900 leading-snug group-hover:text-mahogany-700 transition-colors">
+    <View className="bg-white rounded-2xl shadow-sm border border-cream-200 p-5 mb-3">
+      {/* Header */}
+      <View className="flex-row items-start justify-between gap-3 mb-3">
+        <View className="flex-1">
+          <Text className="font-semibold text-gray-900 text-base leading-snug" style={{ fontFamily: 'serif' }}>
             {book.title}
-            {book.volume && <span className="ml-2 text-sm font-sans font-normal text-gray-400">{book.volume}</span>}
-          </h3>
-          <p className="text-sm text-gray-500 mt-0.5">{book.author}</p>
-        </div>
-        <span className={`difficulty-badge ${book.difficulty} shrink-0`}>
-          {book.difficulty === 'all' ? 'All Levels' : book.difficulty}
-        </span>
-      </div>
+            {book.volume ? (
+              <Text className="text-sm font-normal text-gray-400"> {book.volume}</Text>
+            ) : null}
+          </Text>
+          <Text className="text-sm text-gray-500 mt-0.5">{book.author}</Text>
+        </View>
+        <View
+          style={{ backgroundColor: diffColor.bg }}
+          className="rounded-full px-2.5 py-1 shrink-0"
+        >
+          <Text style={{ color: diffColor.text }} className="text-xs font-semibold uppercase tracking-wide">
+            {book.difficulty === 'all' ? 'All Levels' : book.difficulty}
+          </Text>
+        </View>
+      </View>
 
-      {book.description && <p className="text-sm text-gray-600 leading-relaxed mb-4">{book.description}</p>}
+      {/* Description */}
+      {book.description ? (
+        <Text className="text-sm text-gray-600 leading-relaxed mb-4">{book.description}</Text>
+      ) : null}
 
+      {/* Skills */}
       {book.skills && book.skills.length > 0 && (
-        <div className="flex flex-wrap gap-1.5 mb-4">
+        <View className="flex-row flex-wrap gap-1.5 mb-4">
           {book.skills.slice(0, 6).map((skill) => (
-            <span key={skill} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-cream-100 text-gray-600 text-xs border border-cream-200">
-              <Tag className="w-2.5 h-2.5" />
-              {skill}
-            </span>
+            <View
+              key={skill}
+              className="flex-row items-center gap-1 px-2 py-0.5 rounded-full bg-cream-100 border border-cream-200"
+            >
+              <Tag size={10} color="#9ca3af" />
+              <Text className="text-xs text-gray-600">{skill}</Text>
+            </View>
           ))}
           {book.skills.length > 6 && (
-            <span className="px-2 py-0.5 rounded-full bg-cream-100 text-gray-400 text-xs border border-cream-200">+{book.skills.length - 6} more</span>
+            <View className="px-2 py-0.5 rounded-full bg-cream-100 border border-cream-200">
+              <Text className="text-xs text-gray-400">+{book.skills.length - 6} more</Text>
+            </View>
           )}
-        </div>
+        </View>
       )}
 
-      <div className="flex items-center justify-between pt-3 border-t border-cream-100">
-        <div className="flex items-center gap-2">
-          <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium border ${INSTRUMENT_COLORS[book.instrument]}`}>
-            {book.instrument.charAt(0).toUpperCase() + book.instrument.slice(1)}
-          </span>
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-gray-50 text-gray-600 border border-gray-100">
-            <BookOpen className="w-3 h-3" />
-            {TYPE_LABELS[book.book_type]}
-          </span>
-        </div>
-        {book.publisher && (
-          <span className="text-xs text-gray-400 flex items-center gap-1">
-            <Music className="w-3 h-3" />
-            {book.publisher}
-          </span>
-        )}
-      </div>
-    </div>
-  )
+      {/* Footer */}
+      <View className="flex-row items-center justify-between pt-3 border-t border-cream-100">
+        <View className="flex-row items-center gap-2">
+          <View
+            style={{ backgroundColor: instColor.bg, borderColor: instColor.border }}
+            className="rounded-full px-2.5 py-1 border"
+          >
+            <Text style={{ color: instColor.text }} className="text-xs font-medium">
+              {book.instrument.charAt(0).toUpperCase() + book.instrument.slice(1)}
+            </Text>
+          </View>
+          <View className="flex-row items-center gap-1 px-2.5 py-1 rounded-full bg-gray-50 border border-gray-100">
+            <BookOpen size={12} color="#6b7280" />
+            <Text className="text-xs font-medium text-gray-600">{TYPE_LABELS[book.book_type]}</Text>
+          </View>
+        </View>
+        {book.publisher ? (
+          <View className="flex-row items-center gap-1">
+            <Music size={12} color="#9ca3af" />
+            <Text className="text-xs text-gray-400">{book.publisher}</Text>
+          </View>
+        ) : null}
+      </View>
+    </View>
+  );
 }

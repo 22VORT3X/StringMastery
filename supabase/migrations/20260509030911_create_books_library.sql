@@ -9,8 +9,8 @@
       - `instrument` (text) - violin, viola, cello, or bass
       - `book_type` (text) - scales, etudes, or both
       - `difficulty` (text) - beginner, intermediate, advanced, or all
-      - `skills` (text[]) - Array of skill tags (scales, arpeggios, shifting, etc.)
-      - `description` (text) - Brief description of book content
+      - `skills` (text[]) - Array of skill tags
+      - `description` (text) - Brief description
       - `publisher` (text) - Publishing company
       - `volume` (text) - Volume/part number if applicable
       - `created_at` (timestamptz)
@@ -18,9 +18,6 @@
   2. Security
     - Enable RLS on `books` table
     - Add public read policy (library data is public)
-
-  3. Data
-    - 59 books seeded across violin (19), viola (13), cello (13), bass (14)
 */
 
 CREATE TABLE IF NOT EXISTS books (

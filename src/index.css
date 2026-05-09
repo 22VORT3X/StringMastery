@@ -1,0 +1,154 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-family-sans: 'Inter', system-ui, sans-serif;
+  --font-family-serif: 'Playfair Display', Georgia, serif;
+
+  --color-cream-50: #fdfaf5;
+  --color-cream-100: #f9f3e8;
+  --color-cream-200: #f2e6d0;
+
+  --color-mahogany-50: #fdf4f0;
+  --color-mahogany-100: #fae3d8;
+  --color-mahogany-200: #f4c4a8;
+  --color-mahogany-300: #e89a72;
+  --color-mahogany-400: #d97245;
+  --color-mahogany-500: #c4522a;
+  --color-mahogany-600: #a63e1f;
+  --color-mahogany-700: #872f18;
+  --color-mahogany-800: #6b2414;
+  --color-mahogany-900: #521b0f;
+
+  --color-forest-50: #f0f7f3;
+  --color-forest-100: #d8ede1;
+  --color-forest-200: #afd8be;
+  --color-forest-300: #7dbd98;
+  --color-forest-400: #52a073;
+  --color-forest-500: #348256;
+  --color-forest-600: #266843;
+  --color-forest-700: #1d5034;
+  --color-forest-800: #163d27;
+  --color-forest-900: #0f2d1c;
+
+  --color-gold-50: #fdfaeb;
+  --color-gold-100: #faf2c7;
+  --color-gold-200: #f5e48f;
+  --color-gold-300: #edd151;
+  --color-gold-400: #e3bc25;
+  --color-gold-500: #c9a118;
+  --color-gold-600: #a37e12;
+  --color-gold-700: #7d5e10;
+  --color-gold-800: #664d12;
+  --color-gold-900: #574114;
+
+  --animate-fade-in: fadeIn 0.4s ease-out;
+  --animate-slide-up: slideUp 0.4s ease-out;
+  --animate-pulse-slow: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--color-cream-50);
+    color: #1a1a1a;
+    font-family: var(--font-family-sans);
+  }
+
+  #root {
+    width: 100%;
+    min-height: 100dvh;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-mahogany-600 text-white px-6 py-3 rounded-xl font-medium
+           transition-all duration-200 hover:bg-mahogany-700 active:scale-95
+           shadow-sm hover:shadow-md cursor-pointer;
+  }
+
+  .btn-secondary {
+    @apply bg-white text-mahogany-700 border border-mahogany-200 px-6 py-3 rounded-xl font-medium
+           transition-all duration-200 hover:bg-mahogany-50 active:scale-95 shadow-sm cursor-pointer;
+  }
+
+  .card {
+    @apply bg-white rounded-2xl shadow-sm border border-cream-200 overflow-hidden;
+  }
+
+  .instrument-btn {
+    @apply flex flex-col items-center justify-center gap-2 p-4 rounded-2xl border-2
+           transition-all duration-200 cursor-pointer select-none;
+  }
+
+  .instrument-btn.active {
+    @apply border-mahogany-500 bg-mahogany-50 text-mahogany-700;
+  }
+
+  .instrument-btn.inactive {
+    @apply border-cream-200 bg-white text-gray-500 hover:border-mahogany-200 hover:bg-cream-50;
+  }
+
+  .skill-chip {
+    @apply px-3 py-1.5 rounded-full text-sm font-medium border transition-all duration-150 cursor-pointer select-none;
+  }
+
+  .skill-chip.active {
+    @apply bg-mahogany-600 text-white border-mahogany-600;
+  }
+
+  .skill-chip.inactive {
+    @apply bg-white text-gray-600 border-gray-200 hover:border-mahogany-300 hover:text-mahogany-700;
+  }
+
+  .difficulty-badge {
+    @apply inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold uppercase tracking-wide;
+  }
+
+  .difficulty-badge.beginner {
+    @apply bg-forest-100 text-forest-700;
+  }
+
+  .difficulty-badge.intermediate {
+    @apply bg-gold-100 text-gold-700;
+  }
+
+  .difficulty-badge.advanced {
+    @apply bg-mahogany-100 text-mahogany-700;
+  }
+
+  .difficulty-badge.all {
+    @apply bg-gray-100 text-gray-600;
+  }
+}
+
+.tuner-needle {
+  transform-origin: bottom center;
+  transition: transform 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #f9f3e8; }
+::-webkit-scrollbar-thumb { background: #e89a72; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #c4522a; }
